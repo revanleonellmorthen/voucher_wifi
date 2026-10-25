@@ -1,0 +1,22 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: voucher_wifi_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: voucher_wifi
+      MYSQL_USER: voucher_app
+      MYSQL_PASSWORD: change_me
+    ports: ["3306:3306"]
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./sql/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  db_data:
