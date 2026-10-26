@@ -1,33 +1,47 @@
-"""Seed user admin/kasir.
+"""Seed/ubah user CLI.
 
-Pakai: python scripts/seed_users.py --username admin --password admin --role admin
+Contoh:
+    python scripts/seed_users.py --username admin --password admin --role admin
 """
-
 import argparse
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from voucher_wifi.core import auth_service  # noqa: E402
+import bcrypt  # noqa: E402
+
+from voucher_wifi import db  # noqa: E402
 
 
 def main():
-    p = argparse.ArgumentParser(description="Buat user admin/kasir")
-    p.add_argument("--username", required=True)
-    p.add_argument("--password", required=True)
-    p.add_argument("--role", required=True, choices=auth_service.ROLE_VALID)
-    args = p.parse_args()
+    parser = argparse.ArgumentParser(description="Buat/ubah user voucher_wifi.")
+    parser.add_argument("--username", required=True)
+    parser.add_argument("--password", required=True)
+    parser.add_argument("--role", required=True, choices=["admin", "kasir"])
+    args = parser.parse_args()
 
-    try:
-        user_id = auth_service.buat_user(args.username, args.password, args.role)
-    except ValueError as e:
-        print(f"gagal: {e}", file=sys.stderr)
-        return 1
+    username = args.username.strip()
+    if not username:
+        sys.exit("Username kosong.")
+    if len(args.password.encode("utf-8")) > 72:
+        sys.exit("Password > 72 byte (batas bcrypt).")
 
-    print(f"user dibuat: id={user_id} username={args.username} role={args.role}")
-    return 0
+    password_hash = bcrypt.hashpw(
+        args.password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+
+    with db.koneksi() as conn:
+        db.execute(
+            conn,
+            "INSERT INTO users (username, password_hash, role) VALUES (%s, %s, %s)"
+            " ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash),"
+            " role = VALUES(role), aktif = TRUE",
+            (username, password_hash, args.role),
+        )
+
+    print(f"user '{username}' siap (role {args.role})")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

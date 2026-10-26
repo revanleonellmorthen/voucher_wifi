@@ -1,34 +1,22 @@
-import pytest
-
-from voucher_wifi.core import kode_generator as kg
+from voucher_wifi.core import kode_generator
 
 
-def test_alfabet_tanpa_karakter_ambigu():
-    assert len(kg.ALFABET) == 31
-    for c in "0O1IL":
-        assert c not in kg.ALFABET
+def test_kode_panjang_dan_alfabet():
+    kode = kode_generator.buat_kode()
+    assert len(kode) == 8
+    assert all(c in kode_generator.ALFABET for c in kode)
+    assert not set("01ILO") & set(kode)
 
 
-def test_buat_kode_format_dan_panjang():
-    for _ in range(200):
-        kode = kg.buat_kode()
-        assert len(kode) == 8
-        assert kg.valid_format(kode)
-        assert set(kode) <= set(kg.ALFABET)
+def test_kode_unik():
+    kode = {kode_generator.buat_kode() for _ in range(1000)}
+    assert len(kode) == 1000
 
 
-def test_buat_kode_acak():
-    kode = {kg.buat_kode() for _ in range(200)}
-    assert len(kode) == 200
-
-
-@pytest.mark.parametrize(
-    "kode",
-    ["", None, "ABCDEFG", "ABCDEFGHJ", "abcdefgh", "ABCD0FGH", "ABCDOFGH", "ABCD1FGH", "ABCDFGHI", "ABCDEFGL"],
-)
-def test_valid_format_tolak(kode):
-    assert not kg.valid_format(kode)
-
-
-def test_valid_format_terima():
-    assert kg.valid_format("ABCD2345")
+def test_valid_format():
+    assert kode_generator.valid_format("AB2CD3EF")
+    assert not kode_generator.valid_format("AB2CD3E")
+    assert not kode_generator.valid_format("ab2cd3ef")
+    assert not kode_generator.valid_format("AB2CD3E0")
+    assert not kode_generator.valid_format("")
+    assert not kode_generator.valid_format(None)

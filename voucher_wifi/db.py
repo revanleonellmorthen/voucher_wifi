@@ -1,51 +1,38 @@
-"""Wrapper MySQL. Satu koneksi per pemanggilan, autocommit OFF."""
+"""Wrapper koneksi MySQL. Satu koneksi per unit kerja, autocommit OFF."""
+from contextlib import contextmanager
 
 import pymysql
+from pymysql.cursors import DictCursor
 
-from . import config
-
-
-def _koneksi():
-    return pymysql.connect(
-        host=config.DB_HOST,
-        port=config.DB_PORT,
-        user=config.DB_USER,
-        password=config.DB_PASS,
-        database=config.DB_NAME,
-        charset="utf8mb4",
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=False,
-    )
+from .config import DB_CONFIG
 
 
-def fetch_one(sql, params=()):
-    conn = _koneksi()
+@contextmanager
+def koneksi():
+    """Commit bila blok sukses, rollback bila error, selalu tutup."""
+    conn = pymysql.connect(**DB_CONFIG, cursorclass=DictCursor, autocommit=False)
     try:
-        with conn.cursor() as cur:
-            cur.execute(sql, params)
-            return cur.fetchone()
-    finally:
-        conn.close()
-
-
-def fetch_all(sql, params=()):
-    conn = _koneksi()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(sql, params)
-            return cur.fetchall()
-    finally:
-        conn.close()
-
-
-def execute(sql, params=()):
-    """Operasi tulis: commit eksplisit, kembalikan id baris baru."""
-    conn = _koneksi()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(sql, params)
-            lastrowid = cur.lastrowid
+        yield conn
         conn.commit()
-        return lastrowid
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
+
+
+def fetch_one(conn, sql, params=()):
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return cur.fetchone()
+
+
+def fetch_all(conn, sql, params=()):
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return cur.fetchall()
+
+
+def execute(conn, sql, params=()):
+    with conn.cursor() as cur:
+        cur.execute(sql, params)

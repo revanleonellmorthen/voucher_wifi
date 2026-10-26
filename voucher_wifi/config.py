@@ -1,5 +1,4 @@
-"""Konfigurasi dari .env. Gagal cepat bila variabel wajib tidak ada."""
-
+"""Konfigurasi dari .env. Gagal cepat bila variabel wajib hilang."""
 import os
 from pathlib import Path
 
@@ -7,22 +6,27 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
+_WAJIB = (
+    "DB_HOST",
+    "DB_PORT",
+    "DB_USER",
+    "DB_PASS",
+    "DB_NAME",
+    "FLASK_SECRET_KEY",
+    "FLASK_HOST",
+    "FLASK_PORT",
+    "PORTAL_RATE_LIMIT",
+)
 
-def _wajib(nama: str) -> str:
-    nilai = os.environ.get(nama)
-    if not nilai:
-        raise RuntimeError(f"Variabel .env wajib tidak ada: {nama}")
-    return nilai
+_hilang = [k for k in _WAJIB if not os.environ.get(k)]
+if _hilang:
+    raise RuntimeError(f"Variabel .env belum diset: {', '.join(_hilang)}")
 
-
-DB_HOST = _wajib("DB_HOST")
-DB_PORT = int(_wajib("DB_PORT"))
-DB_USER = _wajib("DB_USER")
-DB_PASS = _wajib("DB_PASS")
-DB_NAME = _wajib("DB_NAME")
-
-FLASK_SECRET_KEY = _wajib("FLASK_SECRET_KEY")
-FLASK_HOST = _wajib("FLASK_HOST")
-FLASK_PORT = int(_wajib("FLASK_PORT"))
-
-PORTAL_RATE_LIMIT = int(_wajib("PORTAL_RATE_LIMIT"))
+DB_CONFIG = {
+    "host": os.environ["DB_HOST"],
+    "port": int(os.environ["DB_PORT"]),
+    "user": os.environ["DB_USER"],
+    "password": os.environ["DB_PASS"],
+    "database": os.environ["DB_NAME"],
+    "charset": "utf8mb4",
+}

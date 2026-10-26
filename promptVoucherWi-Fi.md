@@ -42,7 +42,7 @@
 | 2 | Spesifikasi, user flow, aturan bisnis | ✅ **SELESAI** |
 | 3 | Arsitektur & teknologi | ✅ **SELESAI** |
 | 4 | Struktur folder & DDL database | ✅ **SELESAI** |
-| 5 | Implementasi fitur bertahap | 🔄 **BERJALAN** — 5a ✅, 5b berikutnya |
+| 5 | Implementasi fitur bertahap | 🔨 **BERJALAN** — 5a ✅, 5b–5d belum |
 | 6 | Testing & debugging | ⏳ Belum |
 | 7 | Review keamanan & kualitas | ⏳ Belum |
 | 8 | Dokumentasi & deployment | ⏳ Belum |
@@ -365,22 +365,30 @@ volumes:
 
 ---
 
-## 13. STATUS FILE (per akhir Tahap 4)
+## 13. STATUS FILE (per akhir Tahap 5a)
 
 | File | Status |
 |---|---|
 | `sql/schema.sql` | ✅ Ditulis penuh (Tahap 4) |
 | `sql/seed.sql` | ✅ Ditulis penuh (Tahap 4) |
-| `docker-compose.yml` | ✅ Ditulis penuh (Tahap 4) |
-| `.env.example`, `.gitignore`, `pytest.ini`, `requirements.txt`, `README.md` | ✅ Tahap 5a |
-| `scripts/seed_users.py` | ✅ Tahap 5a |
-| `voucher_wifi/config.py`, `db.py` | ✅ Tahap 5a |
-| `voucher_wifi/core/kode_generator.py`, `auth_service.py` | ✅ Tahap 5a |
-| `voucher_wifi/core/voucher_service.py`, `laporan_service.py`, `rate_limiter.py` | ❌ Belum |
-| `voucher_wifi/cli/*` | ❌ Belum |
-| `voucher_wifi/portal/*` | ❌ Belum |
-| `tests/*` | ✅ 5a (kode_generator, auth_service) — 24 passed |
-| Template HTML & CSS | ❌ Belum dibuat |
+| `docker-compose.yml` | ✅ Ditulis penuh (Tahap 4) — tidak dipakai (Docker belum terpasang) |
+| `.env.example`, `.gitignore`, `pytest.ini`, `requirements.txt` | ✅ Final (Tahap 4) |
+| `README.md` | ✅ Diperbarui setelah 5a |
+| `voucher_wifi/__init__.py` | ✅ Kosong (package marker) |
+| `voucher_wifi/config.py` | ✅ 5a — load `.env` + gagal cepat + `DB_CONFIG` |
+| `voucher_wifi/db.py` | ✅ 5a — `koneksi()`, `fetch_one`, `fetch_all`, `execute` |
+| `voucher_wifi/core/__init__.py` | ✅ Kosong (package marker) |
+| `voucher_wifi/core/kode_generator.py` | ✅ 5a — `buat_kode()`, `valid_format()` (BR-01) |
+| `voucher_wifi/core/auth_service.py` | ✅ 5a — `authenticate()` (BR-11) |
+| `voucher_wifi/core/voucher_service.py` | ❌ 5b |
+| `voucher_wifi/core/laporan_service.py` | ❌ 5d |
+| `voucher_wifi/core/rate_limiter.py` | ❌ 5c |
+| `voucher_wifi/cli/*` | ❌ 5b |
+| `voucher_wifi/portal/*` + template/CSS | ❌ 5c |
+| `scripts/seed_users.py` | ✅ 5a — idempotent (`ON DUPLICATE KEY UPDATE`) |
+| `tests/test_kode_generator.py`, `tests/test_auth_service.py` | ✅ 5a — 7 test lulus |
+
+**Catatan 5a:** kode & unit test selesai dan lulus tanpa DB. Seed user ke DB **belum berhasil** karena MySQL lokal menolak login `voucher_app` (error 1045) — perlu perbaikan user/grant manual di luar repo.
 
 ---
 
@@ -388,14 +396,14 @@ volumes:
 
 Urutan yang disepakati (kerjakan berurutan, **tinjau per sub-tahap**):
 
-| Sub | Isi |
-|---|---|
-| **5a** | `config.py`, `db.py`, `core/kode_generator.py`, `core/auth_service.py`, `scripts/seed_users.py` (+ unit test) — ✅ **SELESAI** |
-| **5b** | `core/voucher_service.py` (jual, cek status) + CLI login → menu → jual & cek (+ unit test) |
-| **5c** | Portal Flask (P-01…P-05) + `core/rate_limiter.py` (+ unit test) |
-| **5d** | `core/laporan_service.py` + menu laporan CLI |
+| Sub | Isi | Status |
+|---|---|---|
+| **5a** | `config.py`, `db.py`, `core/kode_generator.py`, `core/auth_service.py`, `scripts/seed_users.py` (+ unit test) | ✅ **SELESAI** (kode + 7 test lulus; seed DB tertunda, lihat §13) |
+| **5b** | `core/voucher_service.py` (jual, cek status) + CLI login → menu → jual & cek (+ unit test) | ⏳ **BERIKUTNYA** |
+| **5c** | Portal Flask (P-01…P-05) + `core/rate_limiter.py` (+ unit test) | ⏳ Belum |
+| **5d** | `core/laporan_service.py` + menu laporan CLI | ⏳ Belum |
 
-**Belum ada kode Python ditulis** per akhir Tahap 4.
+**Status kode Python:** 5a sudah ada (lihat §13). 5b–5d belum.
 
 ---
 
@@ -403,13 +411,13 @@ Urutan yang disepakati (kerjakan berurutan, **tinjau per sub-tahap**):
 
 | # | Pertanyaan | Usulan |
 |---|---|---|
-| 1 | Akun seed default iterasi 1? | **DIPUTUSKAN:** `admin`/`admin`, `kasir1`/`kasir1` |
+| 1 | Akun seed default iterasi 1? | ✅ **DIPUTUSKAN:** `admin`/`admin` (role admin), `kasir1`/`kasir1` (role kasir) — prototype |
 | 2 | Harga sebagai INT rupiah (bukan DECIMAL)? | Ya |
 | 3 | Simpan `user_agent` di `sesi_voucher`? | Ya (untuk debug) |
 | 4 | Lebar `kode` VARCHAR(16) (longgar) atau VARCHAR(8) (ketat)? | Longgar (future-proof) |
 | 5 | Urutan sub-tahap 5a–5d? | Sesuai tabel §14 |
 
-**Catatan:** Item 2–5 sudah diusulkan dan **tidak menunggu** konfirmasi keras — bisa dianggap disetujui kecuali user baru menyatakan lain. Item 1 tetap butuh konfirmasi eksplisit dari user sebelum 5a dijalankan.
+**Catatan:** Item 1 sudah dikonfirmasi user. Item 2–5 disetujui sesuai usulan.
 
 ---
 
@@ -429,8 +437,8 @@ docker compose exec db mysql -uvoucher_app -pchange_me voucher_wifi -e "SELECT *
 
 1. Baca dokumen ini **seluruhnya** sebelum menjawab.
 2. **Peran Anda:** Senior Software Engineer (Vibe Coding) + Project Manager pendamping.
-3. **Tahap saat ini:** Tahap 4 **SELESAI** → siap masuk **Tahap 5a**.
-4. **Langkah pertama Anda:** Konfirmasi ke user (a) nama akun seed default (§15 item 1), (b) izin masuk 5a. Setelah itu implementasikan **hanya** file yang termasuk 5a.
+3. **Tahap saat ini:** Tahap 5a **SELESAI** → siap masuk **Tahap 5b**.
+4. **Langkah pertama Anda:** Konfirmasi izin masuk 5b, lalu implementasikan **hanya** file yang termasuk 5b. Akun seed sudah final (§15 item 1).
 5. **Jangan** menulis kode di luar scope 5a. Jangan melompat ke 5b–5d.
 6. **Selalu** pakai format jawaban §2 (Tujuan → Langkah → Hasil → Verifikasi → Masalah).
 7. Jika user meminta perubahan scope, catat dampaknya terhadap **BR**, **skema**, dan **Tahap** — jangan mengubah diam-diam.
