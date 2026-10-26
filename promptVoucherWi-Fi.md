@@ -42,7 +42,7 @@
 | 2 | Spesifikasi, user flow, aturan bisnis | ✅ **SELESAI** |
 | 3 | Arsitektur & teknologi | ✅ **SELESAI** |
 | 4 | Struktur folder & DDL database | ✅ **SELESAI** |
-| 5 | Implementasi fitur bertahap | ⏳ **BERIKUTNYA** (belum dimulai) |
+| 5 | Implementasi fitur bertahap | 🔄 **BERJALAN** — 5a ✅, 5b berikutnya |
 | 6 | Testing & debugging | ⏳ Belum |
 | 7 | Review keamanan & kualitas | ⏳ Belum |
 | 8 | Dokumentasi & deployment | ⏳ Belum |
@@ -372,9 +372,14 @@ volumes:
 | `sql/schema.sql` | ✅ Ditulis penuh (Tahap 4) |
 | `sql/seed.sql` | ✅ Ditulis penuh (Tahap 4) |
 | `docker-compose.yml` | ✅ Ditulis penuh (Tahap 4) |
-| `.env.example`, `.gitignore`, `pytest.ini`, `requirements.txt`, `README.md` | 📝 Kerangka — isi di Tahap 5 |
-| `scripts/seed_users.py` | 📝 Kontrak ditetapkan — isi di Tahap 5 |
-| Semua file `.py` di `voucher_wifi/` | ❌ Belum dibuat |
+| `.env.example`, `.gitignore`, `pytest.ini`, `requirements.txt`, `README.md` | ✅ Tahap 5a |
+| `scripts/seed_users.py` | ✅ Tahap 5a |
+| `voucher_wifi/config.py`, `db.py` | ✅ Tahap 5a |
+| `voucher_wifi/core/kode_generator.py`, `auth_service.py` | ✅ Tahap 5a |
+| `voucher_wifi/core/voucher_service.py`, `laporan_service.py`, `rate_limiter.py` | ❌ Belum |
+| `voucher_wifi/cli/*` | ❌ Belum |
+| `voucher_wifi/portal/*` | ❌ Belum |
+| `tests/*` | ✅ 5a (kode_generator, auth_service) — 24 passed |
 | Template HTML & CSS | ❌ Belum dibuat |
 
 ---
@@ -385,7 +390,7 @@ Urutan yang disepakati (kerjakan berurutan, **tinjau per sub-tahap**):
 
 | Sub | Isi |
 |---|---|
-| **5a** | `config.py`, `db.py`, `core/kode_generator.py`, `core/auth_service.py`, `scripts/seed_users.py` (+ unit test) |
+| **5a** | `config.py`, `db.py`, `core/kode_generator.py`, `core/auth_service.py`, `scripts/seed_users.py` (+ unit test) — ✅ **SELESAI** |
 | **5b** | `core/voucher_service.py` (jual, cek status) + CLI login → menu → jual & cek (+ unit test) |
 | **5c** | Portal Flask (P-01…P-05) + `core/rate_limiter.py` (+ unit test) |
 | **5d** | `core/laporan_service.py` + menu laporan CLI |
@@ -398,7 +403,7 @@ Urutan yang disepakati (kerjakan berurutan, **tinjau per sub-tahap**):
 
 | # | Pertanyaan | Usulan |
 |---|---|---|
-| 1 | Akun seed default iterasi 1? | `admin`/`admin`, `kasir1`/`kasir1` (prototype) — **TBD: konfirmasi** |
+| 1 | Akun seed default iterasi 1? | **DIPUTUSKAN:** `admin`/`admin`, `kasir1`/`kasir1` |
 | 2 | Harga sebagai INT rupiah (bukan DECIMAL)? | Ya |
 | 3 | Simpan `user_agent` di `sesi_voucher`? | Ya (untuk debug) |
 | 4 | Lebar `kode` VARCHAR(16) (longgar) atau VARCHAR(8) (ketat)? | Longgar (future-proof) |

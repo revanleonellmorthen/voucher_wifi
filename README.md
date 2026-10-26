@@ -24,7 +24,9 @@ mysql -uroot -p voucher_wifi < sql/seed.sql
 
 ## Status
 
-Tahap 1-4 selesai (kebutuhan, spesifikasi, arsitektur, struktur folder + DDL).
-Tahap 5a berikutnya: `config.py`, `db.py`, `core/kode_generator.py`, `core/auth_service.py`, `scripts/seed_users.py`.
+Tahap 1-5a selesai. 5a: `config.py`, `db.py`, `core/kode_generator.py`, `core/auth_service.py`,
+`scripts/seed_users.py` + unit test (24 passed).
+
+Tahap 5b berikutnya: `core/voucher_service.py` (jual, cek status) + CLI login → menu → jual & cek.
 
 Dokumen acuan: `promptVoucherWi-Fi.md`.
